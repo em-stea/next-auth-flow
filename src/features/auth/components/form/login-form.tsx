@@ -33,10 +33,9 @@ export const LoginForm = () => {
 
   return (
     <Form
+      type="nextForm"
       form={form}
-      onSubmit={(values) => {
-        return doLogin(values);
-      }}
+      action={doLogin}
       onSuccess={() => {
         router.push("/");
       }}

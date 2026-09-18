@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Text } from "@chakra-ui/react";
+import NextForm from "next/form";
 import { createContext, ElementType, useCallback, useContext, useEffect, useRef } from "react";
 import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 
@@ -13,38 +14,58 @@ export function useFormSubmit() {
   const submit = useContext(FormSubmitContext);
 
   if (!submit) {
-    throw new Error("useFormSubmit must be used within a Form or ServerActionForm");
+    throw new Error("useFormSubmit must be used within a Form");
   }
 
   return submit;
 }
 
-interface FormProps<TFieldValues extends FieldValues, TData> {
+type FormBaseProps<TFieldValues extends FieldValues, TData> = {
   children: React.ReactNode;
-  onSubmit?: (input: TFieldValues) => ActionResult<TData> | Promise<ActionResult<TData>>;
   form: UseFormReturn<TFieldValues>;
   onSuccess?: (data: TData) => void;
   onError?: (error: string) => void;
-  as?: ElementType;
   asChild?: boolean;
-}
+};
+
+type DefaultFormProps<TFieldValues extends FieldValues, TData> = FormBaseProps<
+  TFieldValues,
+  TData
+> & {
+  type?: "defaultForm";
+  onSubmit: (input: TFieldValues) => ActionResult<TData> | Promise<ActionResult<TData>>;
+  action?: never;
+};
+
+type NextFormProps<TFieldValues extends FieldValues, TData> = FormBaseProps<TFieldValues, TData> & {
+  type: "nextForm";
+  action: (input: TFieldValues) => ActionResult<TData> | Promise<ActionResult<TData>>;
+  onSubmit?: never;
+};
+
+type FormProps<TFieldValues extends FieldValues, TData> =
+  | DefaultFormProps<TFieldValues, TData>
+  | NextFormProps<TFieldValues, TData>;
 
 export function Form<TFieldValues extends FieldValues, TData>({
   children,
-  onSubmit,
   form,
   onSuccess,
   onError,
-  as = "form",
   asChild,
+  type = "defaultForm",
+  ...props
 }: FormProps<TFieldValues, TData>) {
-  const handleSubmit = async (data: TFieldValues) => {
-    if (!onSubmit) return;
+  const submitFn =
+    type === "nextForm"
+      ? (props as NextFormProps<TFieldValues, TData>).action
+      : (props as DefaultFormProps<TFieldValues, TData>).onSubmit;
 
+  const handleSubmit = async (data: TFieldValues) => {
     let result: ActionResult<TData>;
 
     try {
-      result = await onSubmit(data);
+      result = await submitFn(data);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Error inesperado";
 
@@ -87,13 +108,22 @@ export function Form<TFieldValues extends FieldValues, TData>({
     );
   }
 
+  const Component: ElementType = type === "nextForm" ? NextForm : "form";
+
   return (
     <FormProvider {...form}>
       <FormSubmitContext.Provider value={triggerSubmit}>
         <Box w="full">
-          <Box as={as} onSubmit={onSubmit ? form.handleSubmit(handleSubmit) : undefined}>
+          <Component
+            action={
+              type === "nextForm"
+                ? (submitFn as unknown as (formData: FormData) => Promise<void>)
+                : undefined
+            }
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             {children}
-          </Box>
+          </Component>
         </Box>
       </FormSubmitContext.Provider>
     </FormProvider>

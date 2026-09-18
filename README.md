@@ -2,9 +2,26 @@
 
 <img width="1397" height="824" alt="Screenshot 2026-09-04 at 17 27 07" src="https://github.com/user-attachments/assets/7c1314cf-e388-4197-b037-6418ab7860b6" />
 
+<br/>
+
+**🚀 Live Demo:** [https://next-auth-flow-6r0f9l1wo-testing-team13.vercel.app/](https://next-auth-flow-6r0f9l1wo-testing-team13.vercel.app/)
+
+<br/>
+
 Authentication hub built with Next.js — credentials, OAuth, passkeys, and password recovery.
 
-<a href="https://next-auth-flow-6r0f9l1wo-testing-team13.vercel.app/" target="_blank" rel="noopener noreferrer">Live demo</a>
+## Deployments
+
+| Platform   | Scope                       | URL                                                                                                                        |
+| ---------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Vercel** | Next.js Frontend & Auth Hub | [https://next-auth-flow-6r0f9l1wo-testing-team13.vercel.app/](https://next-auth-flow-6r0f9l1wo-testing-team13.vercel.app/) |
+
+### Deployment Details
+
+- **Frontend & Authentication (Vercel):**
+  - Hosted on Vercel with App Router and Server-Side Rendering (SSR).
+  - Connected to a remote PostgreSQL database on Supabase via Prisma ORM (`DATABASE_URL` / `DIRECT_URL`).
+  - Configure Auth.js secrets (`AUTH_SECRET`, `AUTH_URL`) and OAuth redirect URIs (`/api/auth/callback/google` & `/github`) for production.
 
 ## Features
 
@@ -44,62 +61,3 @@ pnpm install
 pnpm prisma:migrate
 pnpm dev
 ```
-
-Fill in `.env` before starting (see below). The app runs at [http://localhost:3000](http://localhost:3000).
-
-## Environment variables
-
-Copy `.env.example` and set:
-
-| Variable                                    | Description                                    |
-| ------------------------------------------- | ---------------------------------------------- |
-| `AUTH_URL`                                  | App URL (`http://localhost:3000` locally)      |
-| `AUTH_SECRET`                               | Auth.js secret                                 |
-| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`     | Google OAuth (optional)                        |
-| `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET`     | GitHub OAuth (optional)                        |
-| `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | Gmail SMTP for password reset                  |
-| `DATABASE_URL`                              | Supabase pooler URL (runtime, port 6543)       |
-| `DIRECT_URL`                                | Supabase URL for Prisma migrations (port 5432) |
-
-Do not commit your real `.env`.
-
-### Gmail SMTP (App Password)
-
-Gmail does not allow your normal account password for SMTP. Create an [App Password](https://myaccount.google.com/apppasswords) instead:
-
-1. Open [Google Account → Security](https://myaccount.google.com/security).
-2. Turn on **2-Step Verification** (required before App Passwords appear).
-3. Go to [App passwords](https://myaccount.google.com/apppasswords) (or search “App passwords” in your Google Account).
-4. Create a password — app: **Mail**, device: **Other** (e.g. `Auth Hub`).
-5. Copy the 16-character password and set it in `.env`:
-
-```env
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=xxxx xxxx xxxx xxxx
-SMTP_FROM="Auth Hub <your-email@gmail.com>"
-```
-
-Spaces in the App Password are fine; Nodemailer accepts them as-is.
-
-## Authentication
-
-| Method              | Notes                                              |
-| ------------------- | -------------------------------------------------- |
-| **Credentials**     | Seeded user: `admin@test.com` / `123456`           |
-| **Google**          | Requires Google OAuth env vars                     |
-| **GitHub**          | Requires GitHub OAuth env vars                     |
-| **Passkey**         | Register after login or from `/auth/setup-passkey` |
-| **Forgot password** | Sends a reset link (expires in 1 hour)             |
-
-## Scripts
-
-| Command                | Description                         |
-| ---------------------- | ----------------------------------- |
-| `pnpm dev`             | Chakra typegen + Next.js dev server |
-| `pnpm build`           | Production build                    |
-| `pnpm start`           | Serve production build              |
-| `pnpm lint`            | ESLint                              |
-| `pnpm typegen`         | Generate Chakra theme types         |
-| `pnpm prisma:generate` | Generate Prisma Client              |
-| `pnpm prisma:migrate`  | Run migrations                      |
-| `pnpm prisma:studio`   | Open Prisma Studio                  |
